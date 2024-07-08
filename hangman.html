@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<style>
+
+</style>
+
+<body style="display: flex; flex-direction: row; justify-content: center;">
+    <p id="hiddenWordP"></p>
+</body>
+
+<script>
+    // step 1 read from wordBank
+
+    async function run() {
+        let response = await fetch("wordBank.txt");
+        let text = await response.text();
+        let wordBank = text.split("\r\n");
+
+        // step 2, get a random word from teh bank
+        let randomNumber = Math.floor(Math.random() * wordBank.length);
+        let wordToGuess = wordBank[randomNumber];
+
+        // step 4 is hide the word, and show lines under with a space between
+        let hiddenWordP = document.getElementById("hiddenWordP");
+        let hiddenWord = "_ ".repeat(wordToGuess.length);
+
+        hiddenWordP.innerHTML = hiddenWord;
+
+        let tries = 6;
+
+        // step 5 get an event, then fill in the word slowly, gently
+        document.addEventListener('keydown', (event) => {
+            let guessedLetter = event.key.toLowerCase();
+            console.log(guessedLetter);
+
+            if (wordToGuess.includes(guessedLetter)) {
+
+                // get the indices of the correct letters
+                let indicesToReplace = [];
+                for (let i = 0; i < wordToGuess.length; i++) {
+                    if (wordToGuess[i] === guessedLetter) {
+                        indicesToReplace.push(i * 2);
+                    }
+                }
+
+                let currentState = hiddenWordP.innerHTML;
+                for (let i = 0; i < indicesToReplace.length; i++) {
+                    let indexToReplace = indicesToReplace[i];
+                    currentState = currentState.substring(0, indexToReplace) + guessedLetter + currentState.substring(indexToReplace + 1);
+                }
+                
+                hiddenWordP.innerHTML = currentState;
+            }
+            
+            tries--;
+            if (tries == 0 && hiddenWordP.innerHTML.includes("_")) {
+                alert("you lose");
+            } else if (!hiddenWordP.innerHTML.includes("_")) {
+                alert("you win");
+            }
+
+        });
+        console.log(wordToGuess);
+    }
+
+    run();
+</script>

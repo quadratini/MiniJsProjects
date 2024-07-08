@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<style>
+
+</style>
+
+<body style="display: flex; flex-direction: row; justify-content: center;">
+    <div style="background-color: rosybrown;">
+        <div>
+            <label>Username</label>
+            <input id="usernameInput"></input>
+            <p id="usernameErrorP" hidden></p>
+        </div>
+        <div>
+            <label>Email</label>
+            <input id="emailInput"></input>
+            <p id="emailErrorP" hidden>Email is not valid</p>
+        </div>
+        <div>
+            <label>Password</label>
+            <input id="passwordInput"></input>
+        </div>
+        <div>
+            <label>Confirm Password</label>
+            <input id="confirmPasswordInput"></input>
+            <p hidden id="confirmPasswordErrorP"></p>
+        </div>
+        <div>
+            <button id="submitButton">Submit</button>
+        </div>
+    </div>
+</body>
+
+<script>
+    let usernameInput = document.getElementById("usernameInput");
+    let emailInput = document.getElementById("emailInput");
+    let passwordInput = document.getElementById("passwordInput");
+    let confirmPasswordInput = document.getElementById("confirmPasswordInput");
+    let submitButton = document.getElementById("submitButton");
+
+    let usernameErrorP = document.getElementById("usernameErrorP");
+    let emailErrorP = document.getElementById("emailErrorP");
+    let confirmPasswordErrorP = document.getElementById("confirmPasswordErrorP");
+
+
+    submitButton.addEventListener("click", () => {
+        let allValid = true;
+        
+        // username
+        validateUsernameObject = validateUsername(usernameInput.value);
+        if (!validateUsernameObject.isSuccess) {
+            usernameErrorP.removeAttribute("hidden");
+            usernameErrorP.innerHTML = validateUsernameObject.errorMessage;
+            allValid = false;
+        } else {
+            usernameErrorP.setAttribute("hidden", true);
+        }
+
+        // email
+        if (!isValidEmail(emailInput.value)) {
+            emailErrorP.removeAttribute("hidden");
+            emailErrorP.innerHTML = "Email is not valid";
+
+            allValid = false;
+        } else {
+            emailErrorP.setAttribute("hidden", true);
+        }
+
+        // password and confirm password
+        validatePasswordsObject = validatePasswords(passwordInput.value, confirmPasswordInput.value);
+        if (!validatePasswordsObject.isSuccess) {
+            confirmPasswordErrorP.removeAttribute("hidden");
+            confirmPasswordErrorP.innerHTML = validatePasswordsObject.errorMessage;
+            allValid = false;
+        } else {
+            confirmPasswordErrorP.setAttribute("hidden", true);
+        }
+
+        if (allValid) {
+            alert("Wow, you did it!");
+        }
+    });
+
+
+    const validateUsername = (username) => {
+        if (username.length < 3) {
+            isSuccess = false;
+            errorMessage = "Username is invalid. Length must be greater than two!";
+        } else {
+            isSuccess = true;
+            errorMessage = "None";
+        }
+
+        return {
+            isSuccess: isSuccess,
+            errorMessage: errorMessage,
+        };
+    };
+
+    const isValidEmail = (email) => {
+        return String(email)
+            .toLowerCase()
+            .match(
+                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            );
+    };
+
+    const validatePasswords = (password, confirmPassword) => {
+        if (password.length == 0 && confirmPassword.length == 0) {
+            return {
+                isSucess: false,
+                errorMessage: "A password is required!"
+            };
+        }
+
+        if (password !== confirmPassword) {
+            return {
+                isSucess: false,
+                errorMessage: "Passwords do not match!"
+            };
+        }
+
+        return {
+            isSuccess: true,
+            errorMessage: "None"
+        };
+
+    };
+</script>

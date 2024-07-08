@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<style>
+
+</style>
+
+<body style="background-color: palevioletred;">
+    <div style="display: flex; justify-content: center; ">
+        <div style="display: flex; justify-content: center; width:300px; background-color: pink; flex-direction: column; padding: 20px; padding-top: 10px;">
+
+            <div>
+                <h1>CURRENCY CONVERTER</h1>
+            </div>
+            
+            <div style="display: flex">
+                <input style="flex-grow: 1;" id="currency1Input"></input>
+                <select disabled id="currencySelect1">
+                    <option>USD</option>
+                </select>
+            </div>
+            
+            <p>To</p>
+            
+            <div style="display: flex">
+                <input style="flex-grow: 1;" disabled id="currency2Input"></input>
+                <select id="currencySelect2">
+                </select>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+
+<script>
+    const fetchCurrencyRates = async () => {
+        let currencySelectElement1 = document.getElementById("currencySelect1");
+        let currencySelectElement2 = document.getElementById("currencySelect2");
+
+        let currencyArray = await modifiedFetch("usd");
+
+        for (let currencyObject of currencyArray) {
+            let currencyOptionElement1 = document.createElement("option");
+            currencyOptionElement1.value = currencyObject.code;
+            currencyOptionElement1.innerHTML = currencyObject.code;
+            currencySelectElement1.appendChild(currencyOptionElement1);
+
+            let currencyOptionElement2 = document.createElement("option");
+            currencyOptionElement2.value = currencyObject.code;
+            currencyOptionElement2.innerHTML = currencyObject.code;
+            currencySelectElement2.appendChild(currencyOptionElement2);
+        }
+
+        let currencyInput1 = document.getElementById("currency1Input");
+        let currencyInput2 = document.getElementById("currency2Input");
+
+        currencyInput1.addEventListener('input', function (evt) {
+            let key = currencySelectElement2.value;
+            let currencyRate = currencyArray.find((currencyObject) => currencyObject.code === key).rate;
+
+            let currencyAmount1 = this.value;
+            let currencyAmount2 = currencyAmount1 * currencyRate;
+
+            currency2Input.value = currencyAmount2;
+        });
+
+        currencySelectElement2.addEventListener('change', function (evt) {
+            let key = currencySelectElement2.value;
+            let currencyRate = currencyJson[key]["rate"];
+            let currencyAmount1 = currencyInput1.value;
+            let currencyAmount2 = currencyAmount1 * currencyRate;
+
+            currency2Input.value = currencyAmount2;
+        });
+
+    }
+
+    fetchCurrencyRates();
+
+    async function modifiedFetch(currencyCode) {
+        const response = await fetch(`https://www.floatrates.com/daily/${currencyCode}.json`);
+        const currencyJson = await response.json();
+
+        let currencyArray = [];
+
+        for (let key in currencyJson) {
+            let value = currencyJson[key];
+
+            let currencyObject = {
+                code: value.code,
+                rate: value.rate
+            }
+            currencyArray.push(currencyObject);
+        }
+
+        currencyArray.push({
+            code: currencyCode.toUpperCase(),
+            rate: 1
+        });
+
+        currencyArray = currencyArray.sort((a, b) => {
+            return a.code.localeCompare(b.code);
+        });
+
+        return currencyArray;
+    }
+
+</script>
